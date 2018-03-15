@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ShtikLive.Slides.Options;
+using Slidable.Slides.Options;
 
-namespace ShtikLive.Slides
+namespace Slidable.Slides
 {
     public class Startup
     {
@@ -17,6 +17,7 @@ namespace ShtikLive.Slides
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<StorageOptions>(Configuration.GetSection("Storage"));
+            services.AddSingleton<IApiKeyProvider, ApiKeyProvider>();
         }
 
         public void Configure(IApplicationBuilder app)

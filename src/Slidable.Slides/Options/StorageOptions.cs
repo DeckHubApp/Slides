@@ -1,4 +1,4 @@
-﻿namespace ShtikLive.Slides.Options
+﻿namespace Slidable.Slides.Options
 {
     public class StorageOptions
     {

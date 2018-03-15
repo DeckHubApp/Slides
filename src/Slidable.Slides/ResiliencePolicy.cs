@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.CircuitBreaker;
 
-namespace ShtikLive.Slides
+namespace Slidable.Slides
 {
     public static class ResiliencePolicy
     {

@@ -1,28 +1,28 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.AzureAppServices.Internal;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Polly;
-using ShtikLive.Slides.Options;
+using Slidable.Slides.Options;
 
-namespace ShtikLive.Slides
+namespace Slidable.Slides
 {
     public class SlidesMiddleware
     {
         private readonly ILogger<SlidesMiddleware> _logger;
         private readonly CloudBlobClient _client;
+        private readonly IApiKeyProvider _apiKeyProvider;
         private readonly Policy _postPolicy;
         private readonly Policy _getPolicy;
 
         // ReSharper disable once UnusedParameter.Local
-        public SlidesMiddleware(RequestDelegate _, IOptions<StorageOptions> options, ILogger<SlidesMiddleware> logger)
+        public SlidesMiddleware(RequestDelegate _, IOptions<StorageOptions> options, ILogger<SlidesMiddleware> logger, IApiKeyProvider apiKeyProvider)
         {
             _logger = logger;
+            _apiKeyProvider = apiKeyProvider;
             var storageAccount = CloudStorageAccount.Parse(options.Value.ConnectionString);
             _client = storageAccount.CreateCloudBlobClient();
             _postPolicy = ResiliencePolicy.Create(logger);
@@ -58,6 +58,14 @@ namespace ShtikLive.Slides
 
         private Task Put(string presenter, string show, string index, HttpContext context)
         {
+            var apiKey = context.Request.Headers["API-Key"];
+            if (!_apiKeyProvider.CheckBase64(presenter, apiKey))
+            {
+                _logger.LogWarning(EventIds.PresenterInvalidApiKey, "Invalid API key.");
+                context.Response.StatusCode = 403;
+                return Task.CompletedTask;
+            }
+
             return _postPolicy.ExecuteAsync(async () =>
             {
                 var containerRef = _client.GetContainerReference(presenter);
