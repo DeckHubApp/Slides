@@ -22,6 +22,12 @@ namespace Slidable.Slides
 
         public void Configure(IApplicationBuilder app)
         {
+            var pathBase = Configuration["Runtime:PathBase"];
+            if (!string.IsNullOrEmpty(pathBase))
+            {
+                app.UsePathBase(pathBase);
+            }
+
             app.UseMiddleware<SlidesMiddleware>();
         }
     }
