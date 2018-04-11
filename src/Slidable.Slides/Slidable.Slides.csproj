@@ -10,9 +10,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="App.Metrics.AspNetCore.Mvc" Version="2.1.0-alpha-0080" />
+    <PackageReference Include="App.Metrics.AspNetCore.Reporting" Version="2.1.0-alpha-0080" />
+    <PackageReference Include="App.Metrics.Reporting.Console" Version="2.1.0-alpha-0059" />
+    <PackageReference Include="App.Metrics.Reporting.InfluxDB" Version="2.1.0-alpha-0049" />
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.0-preview1-final" />
-    <PackageReference Include="Polly" Version="5.8.0" />
+    <PackageReference Include="Polly" Version="5.9.0" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.1.0" />
   </ItemGroup>
 
