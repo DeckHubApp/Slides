@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
@@ -36,19 +37,19 @@ namespace Slidable.Slides
             _logger.LogWarning("Path: {path}", context.Request.Path);
             var path = context.Request.Path.Value?.Split('/', StringSplitOptions.RemoveEmptyEntries) ??
                        Array.Empty<string>();
-            if (path.Length == 3)
+            if (path.Length == 4)
             {
                 if (context.Request.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
                 {
-                    return Get(path[0], path[1], path[2], context);
+                    return Get(path[0], path[1], path[2], path[3], context);
                 }
                 if (context.Request.Method.Equals("PUT", StringComparison.OrdinalIgnoreCase))
                 {
-                    return Put(path[0], path[1], path[2], context);
+                    return Put(path[0], path[1], path[2], path[3], context);
                 }
                 if (context.Request.Method.Equals("HEAD", StringComparison.OrdinalIgnoreCase))
                 {
-                    return Head(path[0], path[1], path[2], context);
+                    return Head(path[0], path[1], path[2], path[3], context);
                 }
             }
             _logger.LogError("Path not found: {path}", context.Request.Path);
@@ -56,7 +57,7 @@ namespace Slidable.Slides
             return Task.CompletedTask;
         }
 
-        private Task Put(string presenter, string show, string index, HttpContext context)
+        private Task Put(string place, string presenter, string show, string index, HttpContext context)
         {
             var apiKey = context.Request.Headers["API-Key"];
             if (!_apiKeyProvider.CheckBase64(presenter, apiKey))
@@ -68,9 +69,8 @@ namespace Slidable.Slides
 
             return _postPolicy.ExecuteAsync(async () =>
             {
-                var containerRef = _client.GetContainerReference(presenter);
-                await containerRef.CreateIfNotExistsAsync(BlobContainerPublicAccessType.Off, null, null);
-                var directory = containerRef.GetDirectoryReference(show);
+                var directory = await GetDirectory(place, presenter, show, true);
+
                 var blob = directory.GetBlockBlobReference($"{index}.jpg");
                 blob.Properties.ContentType = context.Request.ContentType;
                 await blob.UploadFromStreamAsync(context.Request.Body);
@@ -79,14 +79,13 @@ namespace Slidable.Slides
             });
         }
 
-        private Task Get(string presenter, string show, string index, HttpContext context)
+        private Task Get(string place, string presenter, string show, string index, HttpContext context)
         {
             return _getPolicy.ExecuteAsync(async () =>
             {
-                var containerRef = _client.GetContainerReference(presenter);
-                if (await containerRef.ExistsAsync())
+                var directory = await GetDirectory(place, presenter, show);
+                if (directory != null)
                 {
-                    var directory = containerRef.GetDirectoryReference(show);
                     var blob = directory.GetBlockBlobReference($"{index}.jpg");
                     if (await blob.ExistsAsync())
                     {
@@ -103,14 +102,13 @@ namespace Slidable.Slides
             });
         }
 
-        private Task Head(string presenter, string show, string index, HttpContext context)
+        private Task Head(string place, string presenter, string show, string index, HttpContext context)
         {
             return _getPolicy.ExecuteAsync(async () =>
             {
-                var containerRef = _client.GetContainerReference(presenter);
-                if (await containerRef.ExistsAsync())
+                var directory = await GetDirectory(place, presenter, show);
+                if (directory != null)
                 {
-                    var directory = containerRef.GetDirectoryReference(show);
                     var blob = directory.GetBlockBlobReference($"{index}.jpg");
                     if (await blob.ExistsAsync())
                     {
@@ -124,6 +122,24 @@ namespace Slidable.Slides
                 }
                 context.Response.StatusCode = 404;
             });
+        }
+
+        private async Task<CloudBlobDirectory> GetDirectory(string place, string presenter, string show, bool createIfNotExist = false)
+        {
+            var containerRef = _client.GetContainerReference(presenter);
+            if (createIfNotExist)
+            {
+                await containerRef.CreateIfNotExistsAsync(BlobContainerPublicAccessType.Off, null, null);
+            }
+            else
+            {
+                if (!await containerRef.ExistsAsync())
+                {
+                    return null;
+                }
+            }
+            var placeDirectory = containerRef.GetDirectoryReference(place);
+            return placeDirectory.GetDirectoryReference(show);
         }
     }
 }
