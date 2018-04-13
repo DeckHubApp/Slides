@@ -2,7 +2,7 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: slides
-  namespace: shtik
+  namespace: slidable
 spec:
   replicas: 2
   template:
@@ -11,10 +11,17 @@ spec:
         app: slides
     spec:
       containers:
-      - image: shtik/slides:1.1.0
+      - image: slidable/slides:1.0.0-alpha1
         imagePullPolicy: Always
         name: slides
         env:
+          - name: Runtime__PathBase
+            value: '/slides'
+          - name: Security__ApiKeyHashPhrase
+            valueFrom:
+              secretKeyRef:
+                name: api-key
+                key: hashPhrase
           - name: Storage__ConnectionString
             valueFrom:
               secretKeyRef:
@@ -27,7 +34,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: slides
-  namespace: shtik
+  namespace: slidable
 spec:
   ports:
   - port: 80
@@ -35,3 +42,21 @@ spec:
     name: http
   selector:
     app: slides
+  sessionAffinity: ClientIP
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: slides
+  namespace: slidable
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: slidable.io
+    http:
+      paths:
+      - path: /slides
+        backend:
+          serviceName: slides
+          servicePort: 80
