@@ -4,7 +4,7 @@ VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F95AEF80-4C9D-49A7-BEF2-AA0319111731}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Slidable.Slides", "src\Slidable.Slides\Slidable.Slides.csproj", "{B03A3E0F-57E4-4A4E-AD7B-1EC427A2BD0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeckHub.Slides", "src\DeckHub.Slides\DeckHub.Slides.csproj", "{B03A3E0F-57E4-4A4E-AD7B-1EC427A2BD0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

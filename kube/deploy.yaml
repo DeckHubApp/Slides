@@ -2,7 +2,7 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: slides
-  namespace: slidable
+  namespace: deckhub
 spec:
   replicas: 2
   template:
@@ -11,7 +11,7 @@ spec:
         app: slides
     spec:
       containers:
-      - image: slidable/slides:1.0.0-alpha1
+      - image: deckhub/slides:1.0.0-alpha1
         imagePullPolicy: Always
         name: slides
         env:
@@ -34,7 +34,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: slides
-  namespace: slidable
+  namespace: deckhub
 spec:
   ports:
   - port: 80
@@ -48,12 +48,12 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: slides
-  namespace: slidable
+  namespace: deckhub
   annotations:
     kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
-  - host: slidable.io
+  - host: deckhub.app
     http:
       paths:
       - path: /slides

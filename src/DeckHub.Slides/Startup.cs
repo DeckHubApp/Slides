@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Slidable.Slides.Options;
+using DeckHub.Slides.Options;
 
-namespace Slidable.Slides
+namespace DeckHub.Slides
 {
     public class Startup
     {

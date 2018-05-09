@@ -6,9 +6,9 @@ using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Polly;
-using Slidable.Slides.Options;
+using DeckHub.Slides.Options;
 
-namespace Slidable.Slides
+namespace DeckHub.Slides
 {
     public class SlidesMiddleware
     {

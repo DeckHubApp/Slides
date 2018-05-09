@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.CircuitBreaker;
 
-namespace Slidable.Slides
+namespace DeckHub.Slides
 {
     public static class ResiliencePolicy
     {

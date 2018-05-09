@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 
-namespace Slidable.Slides
+namespace DeckHub.Slides
 {
     public class ApiKeyProvider : IApiKeyProvider
     {

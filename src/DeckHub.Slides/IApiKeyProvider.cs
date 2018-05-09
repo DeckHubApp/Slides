@@ -1,4 +1,4 @@
-﻿namespace Slidable.Slides
+﻿namespace DeckHub.Slides
 {
     public interface IApiKeyProvider
     {

@@ -1,4 +1,4 @@
-﻿namespace Slidable.Slides.Options
+﻿namespace DeckHub.Slides.Options
 {
     public class StorageOptions
     {
