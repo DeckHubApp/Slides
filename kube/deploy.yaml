@@ -11,7 +11,7 @@ spec:
         app: slides
     spec:
       containers:
-      - image: deckhub/slides:1.0.0-alpha1
+      - image: deckhub/slides:1.0.0-alpha2
         imagePullPolicy: Always
         name: slides
         env:

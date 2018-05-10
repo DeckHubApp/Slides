@@ -7,15 +7,17 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Polly;
 using DeckHub.Slides.Options;
+using JetBrains.Annotations;
 
 namespace DeckHub.Slides
 {
+    [UsedImplicitly]
     public class SlidesMiddleware
     {
         private readonly ILogger<SlidesMiddleware> _logger;
         private readonly CloudBlobClient _client;
         private readonly IApiKeyProvider _apiKeyProvider;
-        private readonly Policy _postPolicy;
+        private readonly Policy _putPolicy;
         private readonly Policy _getPolicy;
 
         // ReSharper disable once UnusedParameter.Local
@@ -25,7 +27,7 @@ namespace DeckHub.Slides
             _apiKeyProvider = apiKeyProvider;
             var storageAccount = CloudStorageAccount.Parse(options.Value.ConnectionString);
             _client = storageAccount.CreateCloudBlobClient();
-            _postPolicy = ResiliencePolicy.Create(logger);
+            _putPolicy = ResiliencePolicy.Create(logger);
             _getPolicy = ResiliencePolicy.Create(logger);
             _logger.LogWarning(nameof(SlidesMiddleware));
         }
@@ -66,7 +68,7 @@ namespace DeckHub.Slides
                 return Task.CompletedTask;
             }
 
-            return _postPolicy.ExecuteAsync(async () =>
+            return _putPolicy.ExecuteAsync(async () =>
             {
                 var directory = await GetDirectory(place, presenter, show, true);
 
@@ -128,7 +130,15 @@ namespace DeckHub.Slides
             var containerRef = _client.GetContainerReference(presenter);
             if (createIfNotExist)
             {
-                await containerRef.CreateIfNotExistsAsync(BlobContainerPublicAccessType.Off, null, null);
+                try
+                {
+                    await containerRef.CreateIfNotExistsAsync(BlobContainerPublicAccessType.Off, null, null);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating container {container}", presenter);
+                    throw;
+                }
             }
             else
             {
